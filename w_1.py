@@ -47,8 +47,24 @@ def Overlap(kmers):
 
 	return None
 
-#kmers = 'ATGCG GCATG CATGC AGGCA GGCAT GGCAC'
-#kmers = kmers.split(' ')
-kmers = inputFile('../Downloads/dataset_198_10.txt')
-Overlap(kmers)
+def OverlapUsingDictionary(kmers):
+	d = {}
+	for kmer in kmers:
+		if kmer not in d:
+			d[kmer] = []
+	for kmer in kmers:
+		for kmer_ in kmers:
+			if (Suffix(kmer) == Prefix(kmer_)) and (kmer != kmer_):
+				d[kmer].append(kmer_)
+	for kmer in kmers:
+		l = d[kmer]
+		if len(l) > 0:
+			my_list = ','.join(l)
+			print kmer, '->', my_list
+	return None
+
+kmers = '0000 0001 0010 0011 0100 0101 0110 0111 1000 1001 1010 1011 1100 1101 1110 1111'
+kmers = kmers.split(' ')
+#kmers = inputFile('../Downloads/dataset_198_10.txt')
+OverlapUsingDictionary(kmers)
 
