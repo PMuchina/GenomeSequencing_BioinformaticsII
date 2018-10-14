@@ -1,3 +1,5 @@
+import networkx as nx
+
 def inputFile(file):
 	kmers= []
 	with open(file) as f:
@@ -21,5 +23,32 @@ def StringSpelledByAGenomePath(kmers):
 	string = ''.join(string)
 	return string
 
-kmers = inputFile('../Downloads/dataset_198_3.txt')
-print StringSpelledByAGenomePath(kmers)
+def Prefix(kmer):
+	return kmer[0:len(kmer) - 1]
+
+def Suffix(kmer):
+	return kmer[1:]
+
+def Overlap(kmers):
+	file = open('data.txt', 'w')
+	G = nx.DiGraph()
+	G.add_nodes_from(kmers)
+	for kmer in kmers:
+		for kmer_ in kmers:
+			if (Suffix(kmer) == Prefix(kmer_)) and (kmer != kmer_):
+				G.add_edge(kmer, kmer_)
+	for kmer in kmers:
+		l = list(G.adj[kmer])
+		if len(l) > 0:
+			my_list = ','.join(l)
+			print kmer,' -> ',my_list
+			file.write(str(kmer + ' -> ' + my_list + '\n'))
+	file.close()
+
+	return None
+
+#kmers = 'ATGCG GCATG CATGC AGGCA GGCAT GGCAC'
+#kmers = kmers.split(' ')
+kmers = inputFile('../Downloads/dataset_198_10.txt')
+Overlap(kmers)
+
