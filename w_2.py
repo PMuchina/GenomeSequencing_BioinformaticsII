@@ -13,10 +13,10 @@ def inputDict(file):
 			#print line, 'line[::-1]********'
 			l = line.split(' -> ')
 			#print l, 'line.split()********'
-			keys.append(int(l[0]))
+			keys.append(l[0])
 			#print keys, 'keys *********'
 			el = l[1].split(',')
-			el = [int(i) for i in el]
+			#el = [int(i) for i in el]
 			#print el, 'el ********'
 			values.append(el)
 	for i in range(0, len(keys)):
@@ -25,6 +25,7 @@ def inputDict(file):
 			#print keys[i], d[keys[i]], 'keys[i] --> values[i]*******'
 
 	return d
+
 
 def EulerianCycle(d):
 	#file = open('EulerianCycle.txt', 'w')
@@ -124,8 +125,19 @@ def EulerianPath(d):
 	l2 = '->'.join(l2)
 	return l2
 
+def StringReconstruction(kmers, k):
+	DeBruijnGraphFromKmers(kmers)
+	d = inputDict('bruijn.txt')
+	path = EulerianPath(d)
+	path = path.split('->')
+	string = StringSpelledByAGenomePath(path)
+	return string
+
+kmers = inputFile('../Downloads/dataset_203_7.txt')
+#kmers = ['CTTA', 'ACCA', 'TACC', 'GGCT', 'GCTT', 'TTAC']
+print StringReconstruction(kmers, 4)
 
 #d = {0: [2], 1: [3], 2: [1], 3: [0, 4], 6: [3, 7], 7: [8], 8: [9], 9: [6]}
-d = inputDict('../Downloads/dataset_203_6.txt')
-print EulerianPath(d)
+#d = inputDict('../Downloads/dataset_203_6.txt')
+#print EulerianPath(d)
    
