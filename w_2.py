@@ -1,6 +1,7 @@
 from w_1 import *
 from collections import Counter
 import random
+import itertools
 
 def inputDict(file):
 	d = {}
@@ -133,9 +134,25 @@ def StringReconstruction(kmers, k):
 	string = StringSpelledByAGenomePath(path)
 	return string
 
-kmers = inputFile('../Downloads/dataset_203_7.txt')
+
+def KUniversalStringProblem(k):
+	kstrings = ["".join(seq) for seq in itertools.product("01", repeat=k)]
+	#print kstrings, '***********'
+	DeBruijnGraphFromKmers(kstrings)
+	d = inputDict('bruijn.txt')
+	path = EulerianCycle(d)
+	#print path
+	path = path.split('->')
+	string = StringSpelledByAGenomePath(path)
+	string = string[0: len(string) - k + 1]
+	print len(string)
+	return string
+
+
+#kmers = inputFile('../Downloads/dataset_203_7.txt')
+k = 8 #some random value will work too
 #kmers = ['CTTA', 'ACCA', 'TACC', 'GGCT', 'GCTT', 'TTAC']
-print StringReconstruction(kmers, 4)
+print KUniversalStringProblem(k)
 
 #d = {0: [2], 1: [3], 2: [1], 3: [0, 4], 6: [3, 7], 7: [8], 8: [9], 9: [6]}
 #d = inputDict('../Downloads/dataset_203_6.txt')
