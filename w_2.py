@@ -148,11 +148,30 @@ def KUniversalStringProblem(k):
 	print len(string)
 	return string
 
+def KDmerCompostition(string, k, d):
+	kdmers = []
+	for i in range(0, len(string) - 2*k + 1 - d):
+		l = []
+		l.append(string[i:i+k])
+		l.append(string[i+k+d:i+d+2*k])
+		kdmers.append(l)
+
+	return kdmers
+
+
+k = 3
+d = 2
+string = 'TAATGCCATGGGATGTT'
+l = KDmerCompostition(string, k, d)
+l.sort()
+for i in l:
+	print '(' + str(i[0]) + '|' + str(i[1]) + ')'
+
 
 #kmers = inputFile('../Downloads/dataset_203_7.txt')
-k = 8 #some random value will work too
+#k = 8 #some random value will work too
 #kmers = ['CTTA', 'ACCA', 'TACC', 'GGCT', 'GCTT', 'TTAC']
-print KUniversalStringProblem(k)
+#print KUniversalStringProblem(k)
 
 #d = {0: [2], 1: [3], 2: [1], 3: [0, 4], 6: [3, 7], 7: [8], 8: [9], 9: [6]}
 #d = inputDict('../Downloads/dataset_203_6.txt')
