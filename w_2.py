@@ -4,28 +4,31 @@ import random
 import itertools
 
 def inputDict(file):
-	d = {}
-	keys = []
-	values = []
+	#d = {}
+	#keys = []
+	first = []
+	#values = []
+	second = []
 	with open(file) as f:
 		for line in f:
 			if line[len(line) - 1] == '\n':
 				line = line[: -1]
 			#print line, 'line[::-1]********'
-			l = line.split(' -> ')
+			l = line.split('|')
 			#print l, 'line.split()********'
-			keys.append(l[0])
+			first.append(l[0])
+			second.append(l[1])
 			#print keys, 'keys *********'
-			el = l[1].split(',')
+			#el = l[1].split(',')
 			#el = [int(i) for i in el]
 			#print el, 'el ********'
-			values.append(el)
-	for i in range(0, len(keys)):
-		if keys[i] not in d:
-			d[keys[i]] = values[i]
+			#values.append(el)
+	#for i in range(0, len(keys)):
+	#	if keys[i] not in d:
+	#		d[keys[i]] = values[i]
 			#print keys[i], d[keys[i]], 'keys[i] --> values[i]*******'
 
-	return d
+	return (first,second)
 
 
 def EulerianCycle(d):
@@ -158,14 +161,28 @@ def KDmerCompostition(string, k, d):
 
 	return kdmers
 
+def Overlap(string1, string2):
+    for i, s in enumerate(string2, 1):
+         if string1.endswith(string2[:i]):
+            break
 
-k = 3
+    return string1 + string2[i:]
+
+def StringSpelledByGappedPatterns(k ,d):
+	FirstPatterns, SecondPatterns = inputDict('../Downloads/dataset_6206_7.txt')
+	PrefixString = StringSpelledByAGenomePath(FirstPatterns)
+	SuffixString = StringSpelledByAGenomePath(SecondPatterns)
+	string = Overlap(PrefixString,SuffixString)
+	return string
+
+k = 4
 d = 2
-string = 'TAATGCCATGGGATGTT'
-l = KDmerCompostition(string, k, d)
-l.sort()
-for i in l:
-	print '(' + str(i[0]) + '|' + str(i[1]) + ')'
+print StringSpelledByGappedPatterns(k,d)
+#string = 'TAATGCCATGGGATGTT'
+#l = KDmerCompostition(string, k, d)
+#l.sort()
+#for i in l:
+#	print '(' + str(i[0]) + '|' + str(i[1]) + ')'
 
 
 #kmers = inputFile('../Downloads/dataset_203_7.txt')
