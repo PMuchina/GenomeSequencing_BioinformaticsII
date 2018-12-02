@@ -2,34 +2,39 @@ from w_1 import *
 from collections import Counter
 import random
 import itertools
+import sys
 
 def inputDict(file):
-	#d = {}
-	#keys = []
-	first = []
-	#values = []
-	second = []
+	d = {}
+	keys = []
+	values = []
 	with open(file) as f:
 		for line in f:
 			if line[len(line) - 1] == '\n':
 				line = line[: -1]
-			#print line, 'line[::-1]********'
+			line.strip(" ")
+			l = line.split(' -> ')
+			keys.append(l[0])
+			el = l[1].split(',')
+			values.append(el)
+	for i in range(0, len(keys)):
+		if keys[i] not in d:
+			d[keys[i]] = values[i]
+
+	return d
+
+def inputKDmers(file):
+	FirstPatterns = []
+	SecondPattenrs = []
+	with open(file) as f:
+		for line in f:
+			if line[len(line) - 1] == '\n':
+				line = line[: -1]
+			line.strip(" ")
 			l = line.split('|')
-			#print l, 'line.split()********'
-			first.append(l[0])
-			second.append(l[1])
-			#print keys, 'keys *********'
-			#el = l[1].split(',')
-			#el = [int(i) for i in el]
-			#print el, 'el ********'
-			#values.append(el)
-	#for i in range(0, len(keys)):
-	#	if keys[i] not in d:
-	#		d[keys[i]] = values[i]
-			#print keys[i], d[keys[i]], 'keys[i] --> values[i]*******'
-
-	return (first,second)
-
+			FirstPatterns.append(l[0])
+			SecondPattenrs.append(l[1])
+	return FirstPatterns,SecondPattenrs
 
 def EulerianCycle(d):
 	#file = open('EulerianCycle.txt', 'w')
@@ -38,16 +43,22 @@ def EulerianCycle(d):
 		if key not in my_dict:
 			my_dict[key] = []
 
+	count = 0
+
 	for key in d:
 		my_key = key
-		break
+		count += 1
+		if count == 5:
+			break
 	stack = []
 	stack.append(my_key)
 	circuit = []
-
+	
 	while len(stack) > 0:
 		vertex = stack[len(stack) - 1]
+		print vertex
 		edge = random.choice(d[vertex])
+		print edge
 		if edge not in my_dict[vertex]:
 			stack.append(edge)
 			my_dict[vertex].append(edge)
@@ -56,6 +67,7 @@ def EulerianCycle(d):
 				x = stack.pop()
 				#print x
 				circuit.append(str(x))
+
 	circuit = circuit[:: -1]
 	circuit = '->'.join(circuit)
 	#file.write(circuit)
@@ -97,7 +109,9 @@ def EulerianPath(d):
 		if (l[1] - l[0] == 1):
 			end_node = key
 			break
-	#print start_node, end_node
+	print start_node, end_node
+	#start from a node v, out(v)-in(v) = 1
+	#end at a node w, in(v)-out(v) = 1
 
 	virtual_dict = d
 	#print virtual_dict
@@ -106,22 +120,20 @@ def EulerianPath(d):
 		virtual_dict[end_node].append(start_node)
 	elif end_node in virtual_dict:
 		virtual_dict[end_node].append(start_node)
-	#print virtual_dict
 
 	circuit = EulerianCycle(virtual_dict)
+	print circuit
 	#print circuit
 	circuit = circuit.split('->')
 	#circuit = [int(i) for i in circuit]
-	#print circuit
 	l1 = []
 	l2 = []
 	for i in range(0, len(circuit)):
-		if (circuit[i] == str(end_node)) and (circuit[i+1] == str(start_node)):
+		if (circuit[i] == end_node) and (circuit[i+1] == start_node):
 			l1 = circuit[0: i+1]
 			l2 = circuit[i+1: ]
 			break
-	#print l1,'###############'
-	#print l2, '&&&&&&&&&&&&&&&'
+	
 	for i in range(1, len(l1)):
 		l2.append(l1[i])
 
@@ -130,8 +142,8 @@ def EulerianPath(d):
 	return l2
 
 def StringReconstruction(kmers, k):
-	DeBruijnGraphFromKmers(kmers)
-	d = inputDict('bruijn.txt')
+	d = DeBruijnGraphFromKmers(kmers)
+	#d = inputDictAgain('bruijn.txt')
 	path = EulerianPath(d)
 	path = path.split('->')
 	string = StringSpelledByAGenomePath(path)
@@ -141,19 +153,19 @@ def StringReconstruction(kmers, k):
 def KUniversalStringProblem(k):
 	kstrings = ["".join(seq) for seq in itertools.product("01", repeat=k)]
 	#print kstrings, '***********'
-	DeBruijnGraphFromKmers(kstrings)
-	d = inputDict('bruijn.txt')
+	d = DeBruijnGraphFromKmers(kstrings)
+	#d = inputDict('bruijn.txt')
 	path = EulerianCycle(d)
 	#print path
 	path = path.split('->')
 	string = StringSpelledByAGenomePath(path)
 	string = string[0: len(string) - k + 1]
-	print len(string)
+	#print len(string)
 	return string
 
 def KDmerCompostition(string, k, d):
 	kdmers = []
-	for i in range(0, len(string) - 2*k + 1 - d):
+	for i in range(0, len(string) - 2*k - d + 1):
 		l = []
 		l.append(string[i:i+k])
 		l.append(string[i+k+d:i+d+2*k])
@@ -161,24 +173,31 @@ def KDmerCompostition(string, k, d):
 
 	return kdmers
 
-def Overlap(string1, string2):
-    for i, s in enumerate(string2, 1):
-         if string1.endswith(string2[:i]):
-            break
-
-    return string1 + string2[i:]
-
-def StringSpelledByGappedPatterns(k ,d):
-	FirstPatterns, SecondPatterns = inputDict('../Downloads/dataset_6206_7.txt')
-	PrefixString = StringSpelledByAGenomePath(FirstPatterns)
-	SuffixString = StringSpelledByAGenomePath(SecondPatterns)
-	string = Overlap(PrefixString,SuffixString)
+def StringSpelledByPatterns(kmers):
+	string = []
+	x = len(kmers[0])
+	string.append(kmers[0])
+	for i in range(1, len(kmers)):
+		string.append(kmers[i][x-1])
+	string = ''.join(string)
 	return string
 
-k = 4
-d = 2
-print StringSpelledByGappedPatterns(k,d)
-#string = 'TAATGCCATGGGATGTT'
+
+def StringSpelledByGappedPatterns(FirstPatterns, SecondPatterns, k,d):
+    string=''
+    PrefixString = StringSpelledByPatterns(FirstPatterns)
+    SuffixString = StringSpelledByPatterns(SecondPatterns)
+    if SuffixString.startswith(PrefixString[d+k:]):
+        string=combinedString + PrefixString[:d+k] + SuffixString
+    return string
+
+
+FirstPatterns,SecondPatterns = inputKDmers('../Downloads/dataset_204_15.txt')
+k = 50
+d = 200
+#print StringReconstructionFromReadPairs(FirstPatterns, SecondPatterns, k, d)
+
+
 #l = KDmerCompostition(string, k, d)
 #l.sort()
 #for i in l:
@@ -191,6 +210,6 @@ print StringSpelledByGappedPatterns(k,d)
 #print KUniversalStringProblem(k)
 
 #d = {0: [2], 1: [3], 2: [1], 3: [0, 4], 6: [3, 7], 7: [8], 8: [9], 9: [6]}
+#kmers = ['CTTA','ACCA','TACC','GGCT','GCTT','TTAC']
+#k = 4
 #d = inputDict('../Downloads/dataset_203_6.txt')
-#print EulerianPath(d)
-   
