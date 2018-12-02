@@ -56,9 +56,9 @@ def EulerianCycle(d):
 	
 	while len(stack) > 0:
 		vertex = stack[len(stack) - 1]
-		print vertex
+		#print vertex
 		edge = random.choice(d[vertex])
-		print edge
+		#print edge
 		if edge not in my_dict[vertex]:
 			stack.append(edge)
 			my_dict[vertex].append(edge)
@@ -109,7 +109,7 @@ def EulerianPath(d):
 		if (l[1] - l[0] == 1):
 			end_node = key
 			break
-	print start_node, end_node
+	#print start_node, end_node
 	#start from a node v, out(v)-in(v) = 1
 	#end at a node w, in(v)-out(v) = 1
 
@@ -122,7 +122,7 @@ def EulerianPath(d):
 		virtual_dict[end_node].append(start_node)
 
 	circuit = EulerianCycle(virtual_dict)
-	print circuit
+	#print circuit
 	#print circuit
 	circuit = circuit.split('->')
 	#circuit = [int(i) for i in circuit]
@@ -188,13 +188,70 @@ def StringSpelledByGappedPatterns(FirstPatterns, SecondPatterns, k,d):
     PrefixString = StringSpelledByPatterns(FirstPatterns)
     SuffixString = StringSpelledByPatterns(SecondPatterns)
     if SuffixString.startswith(PrefixString[d+k:]):
-        string=combinedString + PrefixString[:d+k] + SuffixString
+        string=string + PrefixString[:d+k] + SuffixString
     return string
 
+def DeBruijnGraphFromKDMers(file):
+	kdmers = []
+	d = {}
+	with open(file) as f:
+		for line in f:
+			if line[len(line) - 1] == '\n':
+				line = line[: -1]
+			line = line.split('|')
+			kdmers.append(line)
+	nodes = []
+	for kdmer in kdmers:
+		l = []
+		for read in kdmer:
+			l.append(Prefix(read))
+		nodes.append(l)
+		l = []
+		for read in kdmer:
+			l.append(Suffix(read))
+		nodes.append(l)
 
-FirstPatterns,SecondPatterns = inputKDmers('../Downloads/dataset_204_15.txt')
-k = 50
-d = 200
+	for node in nodes:
+		node = '|'.join(node)
+		if node not in d:
+			d[node] = []
+
+	for kdmer in kdmers:
+		l = []
+		k = []
+		for read in kdmer:
+			l.append(Suffix(read))
+		l = '|'.join(l)
+		if l in d:
+			for read in kdmer:
+				k.append(Prefix(read))
+			k = '|'.join(k)
+			d[k].append(l)
+
+	return d
+
+def StringReconstructionFromReadPairs(DeBruijDict, k, d):
+	path = EulerianPath(DeBruijDict)
+	path = path.split('->')
+	FirstPatterns = []
+	SecondPatterns = []
+	for kdmer in path:
+		kdmer = kdmer.split('|')
+		FirstPatterns.append(kdmer[0])
+		SecondPatterns.append(kdmer[1])
+	string = StringSpelledByGappedPatterns(FirstPatterns, SecondPatterns, k, d)
+	return string
+
+	#for key in d:
+	#	print key, ' -> ', d[key]
+
+
+#FirstPatterns,SecondPatterns = inputKDmers('../Downloads/dataset_204_15.txt')
+#k = 50
+#d = 200
+DeBruijDict = DeBruijnGraphFromKDMers('../Downloads/dataset_204_15.txt')
+print StringReconstructionFromReadPairs(DeBruijDict, 50, 200)
+
 #print StringReconstructionFromReadPairs(FirstPatterns, SecondPatterns, k, d)
 
 
