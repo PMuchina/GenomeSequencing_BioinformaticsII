@@ -285,13 +285,14 @@ def MaximalNonBranchingPaths(d):
 		count_in_key = 0
 		for key_ in d:
 			l = d[key_]
-			if key in l:
-				count_in_key += 1
+			for i in range(0, len(l)):
+				if l[i] == key:
+					count_in_key += 1
 		degree_dict[key].append(count_in_key)
 	#print degree_dict
 
 	for key in degree_dict:
-		if degree_dict[key][0] != degree_dict[key][1]:
+		if (degree_dict[key][0] != 1 and degree_dict[key][1] != 1) or (degree_dict[key][0] != degree_dict[key][1]):
 			if degree_dict[key][0] > 0:
 				#print key, '#'
 				visited = copy.deepcopy(d[key])
@@ -316,11 +317,6 @@ def MaximalNonBranchingPaths(d):
 	#isolated cycle
 	#print dict2
 	used = []
-	'''
-	for path in paths:
-		for i in path:
-			if i not in used:
-				used.append(i)'''
 
 	cycles = []
 
@@ -352,14 +348,19 @@ def MaximalNonBranchingPaths(d):
 		x =  '->'.join(path)
 		finalPaths.append(x)
 		
-	for i in finalPaths:
-		print i
+	return finalPaths
 
-#d = {'1':['2'], '2':['3'], '3':['4','5'], '6':['7'], '7':['6']}
-d = ip('../Downloads/dataset_6207_2.txt')
+#kmers = ['ATG', 'ATG', 'TGT', 'TGG', 'CAT', 'GGA', 'GAT', 'AGA']
+kmers = inputFile('../Downloads/dataset_205_5.txt')
+d = DeBruijnGraphFromKmers(kmers)
 #print d
-print MaximalNonBranchingPaths(d)
-
+paths = MaximalNonBranchingPaths(d)
+#print paths
+for path in paths:
+	p = path.split('->')
+	print StringSpelledByPatterns(p)
+#d = ip('../Downloads/dataset_6207_2.txt')
+#print d
 
 	#for key in d:
 	#	print key, ' -> ', d[key]
