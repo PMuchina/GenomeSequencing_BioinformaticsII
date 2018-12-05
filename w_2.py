@@ -3,10 +3,12 @@ from collections import Counter
 import random
 import itertools
 import sys
+import copy
 
 def inputDict(file):
 	d = {}
 	keys = []
+
 	values = []
 	with open(file) as f:
 		for line in f:
@@ -242,6 +244,123 @@ def StringReconstructionFromReadPairs(DeBruijDict, k, d):
 	string = StringSpelledByGappedPatterns(FirstPatterns, SecondPatterns, k, d)
 	return string
 
+def ip(file):
+	d = {}
+	keys = []
+	values = []
+	with open(file) as f:
+		for line in f:
+			if line[len(line) - 1] == '\n':
+				line = line[: -1]
+			l = line.split(' -> ')
+			keys.append(l[0])
+			el = l[1].split(',')
+			values.append(el)
+	for i in range(0, len(keys)):
+		if keys[i] not in d:
+			d[keys[i]] = values[i]
+
+	return d
+
+def MaximalNonBranchingPaths(d):
+	dict2 = copy.deepcopy(d)
+	#print dict2
+	paths = []
+	degree_dict = {}
+	for key in d:
+		if key not in degree_dict:
+			degree_dict[key] = []
+		for x in d[key]:
+			if x not in degree_dict:
+				degree_dict[x] = []
+	#out
+	for key in degree_dict:
+		if (key in degree_dict) and (key not in d):
+			degree_dict[key].append(0)
+		else:
+			degree_dict[key].append(len(d[key]))
+
+	#in
+	for key in degree_dict:
+		count_in_key = 0
+		for key_ in d:
+			l = d[key_]
+			if key in l:
+				count_in_key += 1
+		degree_dict[key].append(count_in_key)
+	#print degree_dict
+
+	for key in degree_dict:
+		if degree_dict[key][0] != degree_dict[key][1]:
+			if degree_dict[key][0] > 0:
+				#print key, '#'
+				visited = copy.deepcopy(d[key])
+				#print d, 'visited'
+				#print visited
+				#print key, 'k'
+				while len(visited) > 0:
+					#print visited,'**'
+					stack = []
+					stack.append(key)
+					edge = visited.pop()
+					#print edge, 'edge pop'
+					stack.append(edge)
+					while degree_dict[edge][0] == degree_dict[edge][1] == 1:
+						u = d[edge][0]
+						stack.append(u)
+						edge = u
+					paths.append(stack)
+
+					#print visited, 'v2'
+
+	#isolated cycle
+	#print dict2
+	used = []
+	'''
+	for path in paths:
+		for i in path:
+			if i not in used:
+				used.append(i)'''
+
+	cycles = []
+
+	for key in dict2:
+		if key not in used:
+			cycle = []
+			cycle.append(key)
+			curr = key
+			while (degree_dict[curr][0] == degree_dict[curr][1] == 1):
+				u = dict2[curr][0]
+				cycle.append(u)
+				curr = u
+				if cycle[0] == cycle[-1]:
+					cycles.append(cycle)
+					for i in cycle:
+						used.append(i)
+					break
+
+
+	#print cycles, 'cycles'
+
+	for cycle in cycles:
+		paths.append(cycle)
+
+
+	#print cycle
+	finalPaths = []
+	for path in paths:
+		x =  '->'.join(path)
+		finalPaths.append(x)
+		
+	for i in finalPaths:
+		print i
+
+#d = {'1':['2'], '2':['3'], '3':['4','5'], '6':['7'], '7':['6']}
+d = ip('../Downloads/dataset_6207_2.txt')
+#print d
+print MaximalNonBranchingPaths(d)
+
+
 	#for key in d:
 	#	print key, ' -> ', d[key]
 
@@ -249,8 +368,8 @@ def StringReconstructionFromReadPairs(DeBruijDict, k, d):
 #FirstPatterns,SecondPatterns = inputKDmers('../Downloads/dataset_204_15.txt')
 #k = 50
 #d = 200
-DeBruijDict = DeBruijnGraphFromKDMers('../Downloads/dataset_204_15.txt')
-print StringReconstructionFromReadPairs(DeBruijDict, 50, 200)
+#DeBruijDict = DeBruijnGraphFromKDMers('../Downloads/dataset_204_15.txt')
+#print StringReconstructionFromReadPairs(DeBruijDict, 50, 200)
 
 #print StringReconstructionFromReadPairs(FirstPatterns, SecondPatterns, k, d)
 
