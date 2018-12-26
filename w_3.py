@@ -84,7 +84,26 @@ def LinearSpectrum(peptide, integer_mass_dict):
 
 	return LinearSpectrum
 
+def CircularSpectrum(peptide, integer_mass_dict):
+	peptide = list(peptide)
+	PrefixMass = [0 for i in range(len(peptide) + 1)]
+	for i in range(1, len(peptide) + 1):
+		PrefixMass[i] = PrefixMass[i - 1] + int(integer_mass_dict[peptide[i - 1]])
 
+	peptideMass = PrefixMass[len(PrefixMass) - 1]
+
+	CyclicSpectrum = []
+	CyclicSpectrum.append(0)
+
+	for i in range(0, len(PrefixMass) - 1):
+		for j in range(i + 1, len(PrefixMass)):
+			CyclicSpectrum.append(PrefixMass[j] - PrefixMass[i])
+			if i > 0 and j < len(PrefixMass) - 1:
+				CyclicSpectrum.append(peptideMass - PrefixMass[j] + PrefixMass[i])
+
+	CyclicSpectrum.sort()
+
+	return CyclicSpectrum
 
 
 
@@ -101,8 +120,8 @@ def LinearSpectrum(peptide, integer_mass_dict):
 #print ProteinTranslation(rna)
 
 integer_mass_dict = IntergerMassDictionary()
-peptide = 'WGEGLYPWQVREIDFAYCLYTVLTWAETSIEWVDRESHHQLH'
-l =  LinearSpectrum(peptide, integer_mass_dict)
+peptide = 'MPILEINAWWLLWS'
+l =  CircularSpectrum(peptide, integer_mass_dict)
 l = ' '.join(map(str, l))
 print l
 
