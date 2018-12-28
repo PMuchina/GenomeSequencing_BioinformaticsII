@@ -153,6 +153,7 @@ def CyclopeptideSequencing(spectrum):
 		for peptide in peptides[:]:
 			if PeptideMass(peptide) == spectrum[len(spectrum) - 1]:
 				if Counter(CircularSpectrum(peptide)) == Counter(spectrum):
+					print peptide
 					m = PeptideMassString(peptide)
 					if m not in result:
 						result.append(m)
@@ -167,6 +168,28 @@ def CyclopeptideSequencing(spectrum):
 	result = ' '.join(result)
 	return result
 
+def CyclopeptideScoring(peptide, experimental_spectrum):
+	spectrum = CircularSpectrum(peptide)
+	peptide_dict = {}
+	spectrum_dict = {}
+	for val in spectrum:
+		if val not in peptide_dict:
+			peptide_dict[val] = 0
+	for val in spectrum:
+		peptide_dict[val] += 1
+
+	for val in experimental_spectrum:
+		if val not in spectrum_dict:
+			spectrum_dict[val] = 0
+	for val in experimental_spectrum:
+		spectrum_dict[val] += 1
+
+	score = 0
+	for mass in peptide_dict:
+		if mass in spectrum_dict:
+			score += min(peptide_dict[mass], spectrum_dict[mass])
+
+	return score
 
 
 #n = 24460
@@ -187,6 +210,7 @@ def CyclopeptideSequencing(spectrum):
 #l = ' '.join(map(str, l))
 #print l
 
+'''
 file = '../Downloads/dataset_100_6.txt'
 spectrum = []
 with open(file) as f:
@@ -197,8 +221,18 @@ with open(file) as f:
 			spectrum.append(int(element))
 
 print CyclopeptideSequencing(spectrum)
+'''
+peptide = 'EHPICDKAMQCSSMLKEDGFGVEDTLWNVRGKVQQSDWHY'
+experimental_spectrum = []
+file = '../Downloads/dataset_102_3.txt'
+with open(file) as f:
+	for line in f:
+		line = line.strip('\n')
+		l = line.split(' ')
+		for element in l:
+			experimental_spectrum.append(int(element))
 
-
+print CyclopeptideScoring(peptide, experimental_spectrum)
 
 
 
