@@ -116,7 +116,7 @@ def CircularSpectrum(peptide):
 	return CyclicSpectrum
 
 def Expand(peptide):
-	p = ['G', 'A', 'S', 'P', 'V', 'T', 'C', 'I', 'L', 'N', 'D', 'K', 'Q', 'E', 'M', 'H', 'F', 'R', 'Y', 'W']
+	p = ['G', 'A', 'S', 'P', 'V', 'T', 'C', 'L', 'N', 'D', 'Q', 'E', 'M', 'H', 'F', 'R', 'Y', 'W']
 	q = []
 	if len(peptide) == 0:
 		return p
@@ -154,7 +154,6 @@ def CyclopeptideSequencing(spectrum):
 		for peptide in peptides[:]:
 			if PeptideMass(peptide) == spectrum[len(spectrum) - 1]:
 				if Counter(CircularSpectrum(peptide)) == Counter(spectrum):
-					print peptide
 					m = PeptideMassString(peptide)
 					if m not in result:
 						result.append(m)
@@ -216,6 +215,8 @@ def LinearScore(peptide, experimental_spectrum):
 	return score
 
 def Trim(leaderboard, spectrum, N):
+	if len(leaderboard) < N:
+		return leaderboard
 	linear_scores = []
 	for i in range(0, len(leaderboard)):
 		linear_scores.append(LinearScore(leaderboard[i], spectrum))
@@ -232,7 +233,27 @@ def Trim(leaderboard, spectrum, N):
 
 	return leaderboard
 
-
+def LeaderboardCyclopeptideSequencing(spectrum, N):
+	leaderboard = ['']
+	leader_peptide = ''
+	best_score = 0
+	d_scores = {}
+	while len(leaderboard) != 0:
+		print leaderboard
+		leaderboard = Expand(leaderboard)
+		for peptide in leaderboard[:]:
+			if PeptideMass(peptide) == spectrum[len(spectrum) - 1]:
+				score = CyclopeptideScoring(peptide, spectrum)
+				if score > best_score:
+					leader_peptide = peptide
+					best_score = score
+			elif PeptideMass(peptide) > spectrum[len(spectrum) - 1]:
+				leaderboard.remove(peptide)
+				continue
+		
+		leaderboard = Trim(leaderboard, spectrum, N)
+		
+	return PeptideMassString(leader_peptide)
 
 
 #n = 24460
@@ -253,8 +274,8 @@ def Trim(leaderboard, spectrum, N):
 #l = ' '.join(map(str, l))
 #print l
 
-'''
-file = '../Downloads/dataset_100_6.txt'
+N = 398
+file = '../Downloads/dataset_102_8.txt'
 spectrum = []
 with open(file) as f:
 	for line in f:
@@ -263,8 +284,8 @@ with open(file) as f:
 		for element in l:
 			spectrum.append(int(element))
 
-print CyclopeptideSequencing(spectrum)
-'''
+print LeaderboardCyclopeptideSequencing(spectrum, N)
+
 '''
 peptide = 'YNYYNHSTDMQRYKFNDTDVYGWHMCTDVYFACCYWCQL'
 experimental_spectrum = []
@@ -278,7 +299,7 @@ with open(file) as f:
 
 print LinearScore(peptide, experimental_spectrum)
 '''
-
+'''
 leaderboard = []
 experimental_spectrum = []
 file = '../Downloads/dataset_4913_3.txt'
@@ -297,7 +318,6 @@ N = 5
 l = Trim(leaderboard, experimental_spectrum, N)
 item = ' '.join(l)
 print item
-
-
+'''
 
 
