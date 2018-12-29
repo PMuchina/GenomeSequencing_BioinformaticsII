@@ -1,6 +1,7 @@
 
 from __future__ import division
 from collections import Counter
+import copy
 
 
 def reverseComplement(string):
@@ -214,6 +215,25 @@ def LinearScore(peptide, experimental_spectrum):
 
 	return score
 
+def Trim(leaderboard, spectrum, N):
+	linear_scores = []
+	for i in range(0, len(leaderboard)):
+		linear_scores.append(LinearScore(leaderboard[i], spectrum))
+
+	linear_scores, leaderboard = zip(*[(x, y) for x, y in sorted(zip(linear_scores, leaderboard))])
+	linear_scores = list(linear_scores)[::-1]
+	leaderboard = list(leaderboard)[::-1]
+
+	s = linear_scores[N - 1]
+
+	for i in range(N, len(leaderboard)):
+		if linear_scores[i] < s:
+			leaderboard = leaderboard[0: i]
+
+	return leaderboard
+
+
+
 
 #n = 24460
 #print NumberOfSubpeptides(n)
@@ -245,6 +265,7 @@ with open(file) as f:
 
 print CyclopeptideSequencing(spectrum)
 '''
+'''
 peptide = 'YNYYNHSTDMQRYKFNDTDVYGWHMCTDVYFACCYWCQL'
 experimental_spectrum = []
 file = '../Downloads/dataset_4913_1.txt'
@@ -256,7 +277,26 @@ with open(file) as f:
 			experimental_spectrum.append(int(element))
 
 print LinearScore(peptide, experimental_spectrum)
+'''
 
+leaderboard = []
+experimental_spectrum = []
+file = '../Downloads/dataset_4913_3.txt'
+with open(file) as f:
+	for line in f:
+		line = line.strip('\n')
+		l = line.split(' ')
+		for element in l:
+			try:
+				element = int(element)
+				experimental_spectrum.append(element)
+			except ValueError:
+				leaderboard.append(element)
+N = 5
+
+l = Trim(leaderboard, experimental_spectrum, N)
+item = ' '.join(l)
+print item
 
 
 
