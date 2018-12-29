@@ -191,6 +191,29 @@ def CyclopeptideScoring(peptide, experimental_spectrum):
 
 	return score
 
+def LinearScore(peptide, experimental_spectrum):
+	spectrum = LinearSpectrum(peptide)
+	peptide_dict = {}
+	spectrum_dict = {}
+	for val in spectrum:
+		if val not in peptide_dict:
+			peptide_dict[val] = 0
+	for val in spectrum:
+		peptide_dict[val] += 1
+
+	for val in experimental_spectrum:
+		if val not in spectrum_dict:
+			spectrum_dict[val] = 0
+	for val in experimental_spectrum:
+		spectrum_dict[val] += 1
+
+	score = 0
+	for mass in peptide_dict:
+		if mass in spectrum_dict:
+			score += min(peptide_dict[mass], spectrum_dict[mass])
+
+	return score
+
 
 #n = 24460
 #print NumberOfSubpeptides(n)
@@ -222,9 +245,9 @@ with open(file) as f:
 
 print CyclopeptideSequencing(spectrum)
 '''
-peptide = 'EHPICDKAMQCSSMLKEDGFGVEDTLWNVRGKVQQSDWHY'
+peptide = 'YNYYNHSTDMQRYKFNDTDVYGWHMCTDVYFACCYWCQL'
 experimental_spectrum = []
-file = '../Downloads/dataset_102_3.txt'
+file = '../Downloads/dataset_4913_1.txt'
 with open(file) as f:
 	for line in f:
 		line = line.strip('\n')
@@ -232,7 +255,7 @@ with open(file) as f:
 		for element in l:
 			experimental_spectrum.append(int(element))
 
-print CyclopeptideScoring(peptide, experimental_spectrum)
+print LinearScore(peptide, experimental_spectrum)
 
 
 
