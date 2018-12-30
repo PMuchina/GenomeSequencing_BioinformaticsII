@@ -255,6 +255,16 @@ def LeaderboardCyclopeptideSequencing(spectrum, N):
 		
 	return PeptideMassString(leader_peptide)
 
+def Convolution(spectrum):
+	spectrum.sort()
+	convolution = []
+	for i in range(0, len(spectrum)):
+		for j in range(0, len(spectrum)):
+			if i != j:
+				val = spectrum[j] - spectrum[i]
+				if val > 0:
+					convolution.append(val)
+	return convolution
 
 #n = 24460
 #print NumberOfSubpeptides(n)
@@ -273,9 +283,9 @@ def LeaderboardCyclopeptideSequencing(spectrum, N):
 #l =  CircularSpectrum(peptide, integer_mass_dict)
 #l = ' '.join(map(str, l))
 #print l
-
-N = 398
-file = '../Downloads/dataset_102_8.txt'
+'''
+N = 1000
+file = '../Downloads/Tyrocidine_B1_Spectrum_25.txt'
 spectrum = []
 with open(file) as f:
 	for line in f:
@@ -285,20 +295,21 @@ with open(file) as f:
 			spectrum.append(int(element))
 
 print LeaderboardCyclopeptideSequencing(spectrum, N)
-
 '''
-peptide = 'YNYYNHSTDMQRYKFNDTDVYGWHMCTDVYFACCYWCQL'
-experimental_spectrum = []
-file = '../Downloads/dataset_4913_1.txt'
+
+
+#peptide = 'YNYYNHSTDMQRYKFNDTDVYGWHMCTDVYFACCYWCQL'
+spectrum = []
+file = '../Downloads/dataset_104_4.txt'
 with open(file) as f:
 	for line in f:
 		line = line.strip('\n')
 		l = line.split(' ')
 		for element in l:
-			experimental_spectrum.append(int(element))
+			spectrum.append(int(element))
 
-print LinearScore(peptide, experimental_spectrum)
-'''
+#print LinearScore(peptide, experimental_spectrum)
+
 '''
 leaderboard = []
 experimental_spectrum = []
@@ -319,5 +330,9 @@ l = Trim(leaderboard, experimental_spectrum, N)
 item = ' '.join(l)
 print item
 '''
+
+res =  Convolution(spectrum)
+res = map(str, res)
+print ' '.join(res)
 
 
