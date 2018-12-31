@@ -2,6 +2,7 @@
 from __future__ import division
 from collections import Counter
 import copy
+import sys
 
 
 def reverseComplement(string):
@@ -75,8 +76,8 @@ def NumberOfSubpeptides(n):
 def SubpeptidesLinear(n):
 	return n*(n+1)/2 + 1
 
-def LinearSpectrum(peptide):
-	integer_mass_dict = IntergerMassDictionary()
+def LinearSpectrum(peptide, convolution):
+	integer_mass_dict = ExtendedMassDict(convolution)
 	peptide = list(peptide)
 	PrefixMass = [0 for i in range(len(peptide) + 1)]
 	for i in range(1, len(peptide) + 1):
@@ -93,8 +94,8 @@ def LinearSpectrum(peptide):
 
 	return LinearSpectrum
 
-def CircularSpectrum(peptide):
-	integer_mass_dict = IntergerMassDictionary()
+def CircularSpectrum(peptide, convolution):
+	integer_mass_dict = ExtendedMassDict(convolution)
 	peptide = list(peptide)
 	PrefixMass = [0 for i in range(len(peptide) + 1)]
 	for i in range(1, len(peptide) + 1):
@@ -115,8 +116,8 @@ def CircularSpectrum(peptide):
 
 	return CyclicSpectrum
 
-def Expand(peptide):
-	p = ['G', 'A', 'S', 'P', 'V', 'T', 'C', 'L', 'N', 'D', 'Q', 'E', 'M', 'H', 'F', 'R', 'Y', 'W']
+def Expand(peptide, extended_mass_dict):
+	p = [chr(key) for key in extended_mass_dict]
 	q = []
 	if len(peptide) == 0:
 		return p
@@ -126,8 +127,8 @@ def Expand(peptide):
 				q.append(pep + pep_)
 		return q
 
-def PeptideMass(peptide):
-	d = IntergerMassDictionary()
+def PeptideMass(peptide, convolution):
+	d = ExtendedMassDict(convolution)
 	peptide = list(peptide)
 	mass = 0
 	for pep in peptide:
@@ -135,12 +136,12 @@ def PeptideMass(peptide):
 
 	return mass
 
-def PeptideMassString(peptide):
-	d = IntergerMassDictionary()
+def PeptideMassString(peptide, convolution):
+	d = ExtendedMassDict(convolution)
 	peptide = list(peptide)
 	mass = []
 	for pep in peptide:
-		mass.append(d[pep])
+		mass.append(str(d[pep]))
 
 	mass = '-'.join(mass)
 	return mass
@@ -148,7 +149,7 @@ def PeptideMassString(peptide):
 def CyclopeptideSequencing(spectrum):
 	peptides = ['']
 	result = []
-	d = IntergerMassDictionary()
+	d = ExtendedMassDict()
 	while len(peptides) != 0:
 		peptides = Expand(peptides)
 		for peptide in peptides[:]:
@@ -168,8 +169,8 @@ def CyclopeptideSequencing(spectrum):
 	result = ' '.join(result)
 	return result
 
-def CyclopeptideScoring(peptide, experimental_spectrum):
-	spectrum = CircularSpectrum(peptide)
+def CyclopeptideScoring(peptide, experimental_spectrum, convolution):
+	spectrum = CircularSpectrum(peptide, convolution)
 	peptide_dict = {}
 	spectrum_dict = {}
 	for val in spectrum:
@@ -191,8 +192,8 @@ def CyclopeptideScoring(peptide, experimental_spectrum):
 
 	return score
 
-def LinearScore(peptide, experimental_spectrum):
-	spectrum = LinearSpectrum(peptide)
+def LinearScore(peptide, experimental_spectrum, convolution):
+	spectrum = LinearSpectrum(peptide, convolution)
 	peptide_dict = {}
 	spectrum_dict = {}
 	for val in spectrum:
@@ -214,12 +215,12 @@ def LinearScore(peptide, experimental_spectrum):
 
 	return score
 
-def Trim(leaderboard, spectrum, N):
+def Trim(leaderboard, spectrum, N, convolution):
 	if len(leaderboard) < N:
 		return leaderboard
 	linear_scores = []
 	for i in range(0, len(leaderboard)):
-		linear_scores.append(LinearScore(leaderboard[i], spectrum))
+		linear_scores.append(LinearScore(leaderboard[i], spectrum, convolution))
 
 	linear_scores, leaderboard = zip(*[(x, y) for x, y in sorted(zip(linear_scores, leaderboard))])
 	linear_scores = list(linear_scores)[::-1]
@@ -233,27 +234,35 @@ def Trim(leaderboard, spectrum, N):
 
 	return leaderboard
 
-def LeaderboardCyclopeptideSequencing(spectrum, N):
+def LeaderboardCyclopeptideSequencing(spectrum, N, convolution):
 	leaderboard = ['']
 	leader_peptide = ''
 	best_score = 0
 	d_scores = {}
 	while len(leaderboard) != 0:
-		print leaderboard
-		leaderboard = Expand(leaderboard)
+		leaderboard = Expand(leaderboard,convolution)
 		for peptide in leaderboard[:]:
-			if PeptideMass(peptide) == spectrum[len(spectrum) - 1]:
-				score = CyclopeptideScoring(peptide, spectrum)
+			print leaderboard
+			if PeptideMass(peptide, convolution) == spectrum[len(spectrum) - 1]:
+				score = CyclopeptideScoring(peptide, spectrum, convolution)
 				if score > best_score:
 					leader_peptide = peptide
 					best_score = score
-			elif PeptideMass(peptide) > spectrum[len(spectrum) - 1]:
+			elif PeptideMass(peptide, convolution) > spectrum[len(spectrum) - 1]:
 				leaderboard.remove(peptide)
 				continue
 		
-		leaderboard = Trim(leaderboard, spectrum, N)
+		leaderboard = Trim(leaderboard, spectrum, N, convolution)
+
+	print best_score, '!!!!!!!'
 		
-	return PeptideMassString(leader_peptide)
+	return PeptideMassString(leader_peptide, convolution)
+
+def ExtendedMassDict(convolution):
+    d = {}
+    for i in convolution:
+        d[chr(i)] = i
+    return d
 
 def Convolution(spectrum):
 	spectrum.sort()
@@ -265,6 +274,51 @@ def Convolution(spectrum):
 				if val > 0:
 					convolution.append(val)
 	return convolution
+
+def RestrictConvolution(convolution):
+	for score in convolution[:]:
+		if score >=57 and score <=200:
+			continue
+		else:
+			convolution.remove(score)
+
+	return convolution
+
+def RankConvWithTies(convolution, M):
+	if len(convolution) < M:
+		return convolution
+	d = dict(Counter(convolution))
+	l = sorted(d, key = d.get)
+	l = l[::-1]
+	s = d[l[M - 1]]
+	for i in range(M, len(l)):
+		if d[l[i]] < s:
+			l = l[0: i]
+			break
+		else:
+			continue
+	convolution = l
+	return convolution
+
+
+def ConvolutionCyclopeptideSequencing(spectrum, N, M):
+	convolution = Convolution(spectrum)
+	#print len(convolution)
+	convolution = RestrictConvolution(convolution)
+	convolution = RankConvWithTies(convolution, M)
+	leader_peptide = LeaderboardCyclopeptideSequencing(spectrum, N, convolution)
+	#leader_peptide = LeaderboardCyclopeptideSequencing(spectrum, N)
+	#print len(convolution)
+	# I totally misunderstood what ties means
+	# focus on the count and then select the number
+	# just like the last few lines of leaderboard trimming
+	# define restrictConvolution() and BestConvWithTies()
+
+	return leader_peptide
+
+	
+
+
 
 #n = 24460
 #print NumberOfSubpeptides(n)
@@ -300,7 +354,7 @@ print LeaderboardCyclopeptideSequencing(spectrum, N)
 
 #peptide = 'YNYYNHSTDMQRYKFNDTDVYGWHMCTDVYFACCYWCQL'
 spectrum = []
-file = '../Downloads/dataset_104_4.txt'
+file = '../Downloads/dataset_104_7.txt'
 with open(file) as f:
 	for line in f:
 		line = line.strip('\n')
@@ -309,6 +363,7 @@ with open(file) as f:
 			spectrum.append(int(element))
 
 #print LinearScore(peptide, experimental_spectrum)
+
 
 '''
 leaderboard = []
@@ -331,8 +386,13 @@ item = ' '.join(l)
 print item
 '''
 
-res =  Convolution(spectrum)
-res = map(str, res)
-print ' '.join(res)
+M = 16
+N = 343
+#spectrum = [57, 57, 71, 99, 129, 137, 170, 186, 194, 208, 228, 265, 285, 299, 307, 323, 356, 364, 394, 422, 493]
+spectrum.sort()
+print spectrum
+print ConvolutionCyclopeptideSequencing(spectrum, N, M) #too slow for downloaded dataset; works with sample input
+#need to optimize LeaderboardCyclopeptideSequencing
+
 
 
