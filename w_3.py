@@ -273,6 +273,8 @@ def Convolution(spectrum):
 				val = spectrum[j] - spectrum[i]
 				if val > 0:
 					convolution.append(val)
+	d = dict(Counter(convolution))
+	print d
 	return convolution
 
 def RestrictConvolution(convolution):
@@ -351,7 +353,7 @@ with open(file) as f:
 print LeaderboardCyclopeptideSequencing(spectrum, N)
 '''
 
-
+'''
 #peptide = 'YNYYNHSTDMQRYKFNDTDVYGWHMCTDVYFACCYWCQL'
 spectrum = []
 file = '../Downloads/dataset_104_7.txt'
@@ -363,7 +365,7 @@ with open(file) as f:
 			spectrum.append(int(element))
 
 #print LinearScore(peptide, experimental_spectrum)
-
+'''
 
 '''
 leaderboard = []
@@ -385,7 +387,7 @@ l = Trim(leaderboard, experimental_spectrum, N)
 item = ' '.join(l)
 print item
 '''
-
+'''
 M = 16
 N = 343
 #spectrum = [57, 57, 71, 99, 129, 137, 170, 186, 194, 208, 228, 265, 285, 299, 307, 323, 356, 364, 394, 422, 493]
@@ -393,6 +395,9 @@ spectrum.sort()
 print spectrum
 print ConvolutionCyclopeptideSequencing(spectrum, N, M) #too slow for downloaded dataset; works with sample input
 #need to optimize LeaderboardCyclopeptideSequencing
-
+'''
+spectrum = [0, 97, 129, 129, 129, 194, 226, 323, 323, 355, 452]
+peptide = 'PEEP'
+print Convolution(spectrum)
 
 
