@@ -349,7 +349,7 @@ def MaximalNonBranchingPaths(d):
 		finalPaths.append(x)
 		
 	return finalPaths
-
+'''
 #kmers = ['ATG', 'ATG', 'TGT', 'TGG', 'CAT', 'GGA', 'GAT', 'AGA']
 kmers = inputFile('../Downloads/dataset_205_5.txt')
 d = DeBruijnGraphFromKmers(kmers)
@@ -358,7 +358,8 @@ paths = MaximalNonBranchingPaths(d)
 #print paths
 for path in paths:
 	p = path.split('->')
-	print StringSpelledByPatterns(p)
+	print(StringSpelledByPatterns(p))
+	'''
 #d = ip('../Downloads/dataset_6207_2.txt')
 #print d
 

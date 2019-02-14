@@ -29,6 +29,7 @@ def Prefix(kmer):
 def Suffix(kmer):
 	return kmer[1:]
 
+'''
 def Overlap(kmers):
 	file = open('data.txt', 'w')
 	G = nx.DiGraph()
@@ -46,8 +47,9 @@ def Overlap(kmers):
 	file.close()
 
 	return None
+	'''
 
-def OverlapUsingDictionary(kmers):
+def Overlap(kmers):
 	d = {}
 	for kmer in kmers:
 		if kmer not in d:
@@ -60,7 +62,7 @@ def OverlapUsingDictionary(kmers):
 		l = d[kmer]
 		if len(l) > 0:
 			my_list = ','.join(l)
-			print kmer, '->', my_list
+			print(kmer, '->', my_list)
 	return None
 
 def DeBruijn(dna, k):
@@ -83,7 +85,7 @@ def DeBruijn(dna, k):
 		l.sort()
 		if len(l) > 0:
 			my_list = ','.join(l)
-			print key, '->', my_list
+			print(key, '->', my_list)
 			file.write(str(key + ' -> ' + my_list + '\n'))
 	file.close()
 	return None

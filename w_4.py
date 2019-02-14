@@ -1,4 +1,4 @@
-from __future__ import division
+#from __future__ import division
 
 file = '../Downloads/file.txt'
 count = 0
@@ -15,15 +15,15 @@ with open(file) as f:
 				contigs.append(i)
 				length += i
 				count += 1
-print count, length, 'count, length'
+print(count, length, 'count, length')
 mid = int(length*0.5)
-print mid, 'mid'
+print(mid, 'mid')
 
 add = 0
 for val in contigs:
 	add += val
 	if add >= mid:
-		print val, add, 'N50, add'
+		print(val, add, 'N50, add')
 		break
 
 

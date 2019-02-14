@@ -1,5 +1,5 @@
 
-from __future__ import division
+#from __future__ import division
 from collections import Counter
 import copy
 import sys
@@ -242,7 +242,7 @@ def LeaderboardCyclopeptideSequencing(spectrum, N, convolution):
 	while len(leaderboard) != 0:
 		leaderboard = Expand(leaderboard,convolution)
 		for peptide in leaderboard[:]:
-			print leaderboard
+			print(leaderboard)
 			if PeptideMass(peptide, convolution) == spectrum[len(spectrum) - 1]:
 				score = CyclopeptideScoring(peptide, spectrum, convolution)
 				if score > best_score:
@@ -254,7 +254,7 @@ def LeaderboardCyclopeptideSequencing(spectrum, N, convolution):
 		
 		leaderboard = Trim(leaderboard, spectrum, N, convolution)
 
-	print best_score, '!!!!!!!'
+	print(best_score, '!!!!!!!')
 		
 	return PeptideMassString(leader_peptide, convolution)
 
@@ -274,7 +274,7 @@ def Convolution(spectrum):
 				if val > 0:
 					convolution.append(val)
 	d = dict(Counter(convolution))
-	print d
+	print(d)
 	return convolution
 
 def RestrictConvolution(convolution):
@@ -396,8 +396,5 @@ print spectrum
 print ConvolutionCyclopeptideSequencing(spectrum, N, M) #too slow for downloaded dataset; works with sample input
 #need to optimize LeaderboardCyclopeptideSequencing
 '''
-spectrum = [0, 97, 129, 129, 129, 194, 226, 323, 323, 355, 452]
-peptide = 'PEEP'
-print Convolution(spectrum)
 
 
