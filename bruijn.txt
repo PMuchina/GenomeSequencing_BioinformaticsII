@@ -1,0 +1,8 @@
+GGT -> GTC
+GTC -> TCG
+GTG -> TGA,TGG
+TGA -> GAG
+TGG -> GGT
+GAG -> AGA
+TCG -> CGT
+CGT -> GTG
